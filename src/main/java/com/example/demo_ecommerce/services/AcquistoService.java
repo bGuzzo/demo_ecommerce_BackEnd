@@ -48,6 +48,8 @@ public class AcquistoService {
      * Possiamo assumere che il lock pessimistico possa generare deadlock. Tuttavia garantisce maggiore integrità
      * dei dati rispetto al lock ottimistico.
      */
+    //TODO: correggere commenti
+    //TODO: aggiungere commenti @Transactional è sulle relazioni
     public Acquisto aggiungiAcquisto(String emailUser, String idProdotto) throws Exception { /* Per correttezza ritorniamo
     l'acquisto anche se praticamente non lo usiamo perchè il controller degli acquisti ritorna una stringa*/
         Cliente cliente = clienteRepository.findByEmail(emailUser);
@@ -57,14 +59,14 @@ public class AcquistoService {
         Carrello carrello = carrelloRepository.findByCliente(cliente);
         Prodotto prodotto = prodottoRepository.findById(Integer.parseInt(idProdotto));
         CarrelloProdotto carrelloProdotto = carrelloProdottoRepository.findByCarrelloAndProdotto(carrello, prodotto);
-        /* Prendo il carrelloProdotto dal carrello associate all'utente.
-        */
 
         int qta = carrelloProdotto.getQuantita();
         if (carrelloProdotto.getQuantita() > prodotto.getQuantita())
-            throw new QuantityProductUnavailableException(prodotto); //se la quantità acquistabile non è disponibile ne DB
+            throw new QuantityProductUnavailableException(prodotto); //se la quantità acquistabile non è disponibile nel DB
+
         /*  noi possiamo inserire una quantità non disponibile di oggetti
             nel carrello nel caso volessimo fare un acquisto nel futuro */
+
         //Creo un Acquisto, imposto cliente, data e lo salvo
         Acquisto nuovoAcquisto = new Acquisto();
         nuovoAcquisto.setCliente(cliente);
@@ -88,9 +90,6 @@ public class AcquistoService {
         carrelloProdottoRepository.delete(carrelloProdotto); //elimino il carrelloProdotto dal carrello
 
         //aggiorno la quantità
-        /*  Fase critica: è qui che subentra il lock, infatti qesta operazione può determinare
-        la corretta risuciuta dell'operazione in caso di molteplici utenti che provano
-        ad acquistare lo stesso prodotto    */
         prodotto.setQuantita(prodotto.getQuantita() - qta);
         prodottoRepository.save(prodotto);
 
@@ -99,7 +98,7 @@ public class AcquistoService {
         return nuovoAcquisto;
     }
 
-    @Transactional(readOnly = true) //TODO: controllare se mettere transactional
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<AcquistoJson> getAcquistiJsonPerCliente(Cliente c) {
         /*  Usiamo una classe di supporto AcquistoJson per inviare l'acquisto mediante il servizio rest */
         List<AcquistoJson> toRet = new LinkedList<>();
@@ -109,7 +108,7 @@ public class AcquistoService {
         return toRet;
     }
 
-    @Transactional(readOnly = true) //TODO: controllare se mettere transactional
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public String getDettagliOrdine(int idOrdine) {
         /*
         Creiamo una stringa contenete il nome e la quantità del prodotto acquistato nell'ordine idOrdine.

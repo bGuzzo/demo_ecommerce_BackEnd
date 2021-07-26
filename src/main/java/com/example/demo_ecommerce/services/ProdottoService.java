@@ -33,7 +33,7 @@ public class ProdottoService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Prodotto mostraProdottoPerId(int id) {
         if (!prodottoRepository.existsById(id)) {
             return null;
