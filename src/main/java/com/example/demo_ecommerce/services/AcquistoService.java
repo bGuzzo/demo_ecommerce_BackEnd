@@ -49,7 +49,6 @@ public class AcquistoService {
      * dei dati rispetto al lock ottimistico.
      */
     //TODO: correggere commenti
-    //TODO: aggiungere commenti @Transactional è sulle relazioni
     public Acquisto aggiungiAcquisto(String emailUser, String idProdotto) throws Exception { /* Per correttezza ritorniamo
     l'acquisto anche se praticamente non lo usiamo perchè il controller degli acquisti ritorna una stringa*/
         Cliente cliente = clienteRepository.findByEmail(emailUser);
@@ -85,7 +84,7 @@ public class AcquistoService {
 
         //eliminazione dal carrello
         List<CarrelloProdotto> listaCarrelloProdotto = carrello.getProdotti();
-        listaCarrelloProdotto.remove(prodottoAcquisto); //elimino il prodotto acquistato dalla lista di prodottoAcquisto
+        listaCarrelloProdotto.remove(prodottoAcquisto); //elimino il prodotto acquistato dalla lista di CarrelloProdotto
         carrelloRepository.save(carrello);
         carrelloProdottoRepository.delete(carrelloProdotto); //elimino il carrelloProdotto dal carrello
 
@@ -122,7 +121,7 @@ public class AcquistoService {
             String s = "";
             for (ProdottoAcquisto pa : prodottoAcquistoList) {
                 //System.out.println(pa.toString());
-                s += pa.getProdotto().getNome() + ", qt: " + pa.getQuantita() + "\n";
+                s += pa.getProdotto().getNome() + ", qt: " + pa.getQuantita() + ", " + pa.getProdotto().getPrezzo() * pa.getQuantita() + " €" + "\n";
             }
             return s;
         } catch (Exception e) {
