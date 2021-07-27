@@ -115,9 +115,7 @@ public class AcquistoService {
          */
         try {
             Acquisto a = acquistoRepository.findById(idOrdine);
-            //System.out.println(a.toString());
             List<ProdottoAcquisto> prodottoAcquistoList = prodottoAcquistoRepository.findByAcquisto(a);
-            //System.out.println(prodottoAcquistoList.toString());
             String s = "";
             for (ProdottoAcquisto pa : prodottoAcquistoList) {
                 //System.out.println(pa.toString());
